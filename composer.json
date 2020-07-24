@@ -1,0 +1,27 @@
+{
+    "name": "soluzione-software/laravel-paypal",
+    "require": {
+        "php": "^7.1.3",
+        "ext-json": "*",
+        "illuminate/http": "^5.8",
+        "illuminate/support": "^5.8",
+        "konekt/enum": "^2.3",
+        "guzzlehttp/guzzle": "^6.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "SoluzioneSoftware\\Laravel\\PayPal\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "SoluzioneSoftware\\Laravel\\PayPal\\ServiceProvider"
+            ]
+        }
+    },
+    "require-dev": {
+        "orchestra/testbench": "^3.8",
+        "phpunit/phpunit": "^8.0"
+    }
+}
