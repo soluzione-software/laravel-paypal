@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use SoluzioneSoftware\Laravel\PayPal\Responses\Subscriptions\CreateResponse;
+use SoluzioneSoftware\Laravel\PayPal\Responses\Subscriptions\ReviseResponse;
 use Throwable;
 
 class SubscriptionsApi extends AbstractApi
@@ -15,7 +16,7 @@ class SubscriptionsApi extends AbstractApi
     /**
      * @param  string  $planId
      * @param  DateTime|null  $startTime
-     * @param  null  $quantity
+     * @param  mixed|null  $quantity
      * @param  array|null  $shippingAmount
      * @param  array|null  $subscriber
      * @param  bool|null  $autoRenewal
@@ -54,7 +55,7 @@ class SubscriptionsApi extends AbstractApi
         $statusCode = $response->getStatusCode();
         throw_if($statusCode !== 201, new RuntimeException("Expected response status code 201. Got $statusCode."));
 
-        return static::buildResponse(json_decode($response->getBody(), true));
+        return static::buildCreateResponse(json_decode($response->getBody(), true));
     }
 
     protected static function getEndPoint(string $path = ''): string
@@ -67,9 +68,58 @@ class SubscriptionsApi extends AbstractApi
      * @return CreateResponse
      * @throws Exception
      */
-    private static function buildResponse(array $response): CreateResponse
+    private static function buildCreateResponse(array $response): CreateResponse
     {
         return CreateResponse::fromArray($response);
+    }
+
+    /**
+     * @param  string  $id
+     * @param  string  $planId
+     * @param  null  $quantity
+     * @param  array|null  $shippingAmount
+     * @param  array|null  $shippingAddress
+     * @param  array|null  $applicationContext
+     * @param  array|null  $plan
+     * @return ReviseResponse
+     * @throws GuzzleException
+     * @throws Exception
+     * @throws RuntimeException|Throwable
+     */
+    public static function revise(
+        string $id,
+        string $planId,
+        $quantity = null,
+        ?array $shippingAmount = null,
+        ?array $shippingAddress = null,
+        ?array $applicationContext = null,
+        ?array $plan = null
+    ): ReviseResponse {
+        $payload = array_filter([
+            'plan_id' => $planId,
+            'quantity' => $quantity,
+            'shipping_amount' => $shippingAmount,
+            'shipping_address' => $shippingAddress,
+            'application_context' => $applicationContext,
+            'plan' => $plan,
+        ]);
+
+        $response = static::callApi('POST', static::getEndPoint("/$id/revise"), null, [], $payload ?: null);
+
+        $statusCode = $response->getStatusCode();
+        throw_if($statusCode !== 200, new RuntimeException("Expected response status code 200. Got $statusCode."));
+
+        return static::buildReviseResponse(json_decode($response->getBody(), true));
+    }
+
+    /**
+     * @param  array  $response
+     * @return ReviseResponse
+     * @throws Exception
+     */
+    private static function buildReviseResponse(array $response): ReviseResponse
+    {
+        return ReviseResponse::fromArray($response);
     }
 
     /**
