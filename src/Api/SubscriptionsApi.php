@@ -74,17 +74,17 @@ class SubscriptionsApi extends AbstractApi
 
     /**
      * @param  string  $id
-     * @param  string  $reason
+     * @param  string|null  $reason
      * @return bool
      * @throws GuzzleException
      */
-    public static function cancel(string $id, string $reason): bool
+    public static function cancel(string $id, ?string $reason = null): bool
     {
-        $payload = [
+        $payload = array_filter([
             'reason' => $reason,
-        ];
+        ]);
 
-        $response = static::callApi('POST', static::getEndPoint("/$id/cancel"), null, [], $payload);
+        $response = static::callApi('POST', static::getEndPoint("/$id/cancel"), null, [], $payload ?: null);
 
         $statusCode = $response->getStatusCode();
         if ($statusCode !== 204) {
